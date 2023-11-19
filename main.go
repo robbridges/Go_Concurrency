@@ -33,6 +33,7 @@ func SendNumToChan(nums []int, c chan int) {
     for _, num := range nums {
         c <- num
     }
+	// this is fine because we can close a channel even if all data hasn't been read from it. read from Channel will still read value from a closed channel
 	close(c)
 }
 
