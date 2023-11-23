@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-    whatWins()
+    channelSelect()
     
 }
 
@@ -27,6 +27,7 @@ func writeAndAppend() {
 	}()
 	wg.Wait()
 	fmt.Println(res)
+	
 
 }
 
@@ -80,9 +81,9 @@ func count (thing string, c chan string) {
 
 func whatWins() {
     var wg sync.WaitGroup
-    numChan := make(chan int, 30) // Increase the buffer size to prevent blocking
+    numChan := make(chan int, 20) // Increase the buffer size to prevent blocking
     nums := []int{}
-    wg.Add(3)
+    wg.Add(2)
     go func() {
         for i := 0; i < 10; i++ {
             numChan <- 1
@@ -98,13 +99,6 @@ func whatWins() {
         wg.Done()
     }()
     go func() {
-        for i := 0; i < 10; i++ {
-            numChan <- 3
-            time.Sleep(time.Millisecond) // Add a small delay
-        }
-        wg.Done()
-    }()
-    go func() {
         wg.Wait() // Wait for the other goroutines to finish
         close(numChan) // Then close the channel
     }()
@@ -113,3 +107,56 @@ func whatWins() {
     }
     fmt.Println(nums)
 }
+
+func appendToSlices(slice1, slice2 []int) []int {
+	var newSlice []int
+	newSlice = append(slice1, slice2...)
+	return newSlice
+}
+
+func channelSelect() {
+    var wg sync.WaitGroup
+    chan1 := make(chan int)
+    chan2 := make(chan string)
+    nums := []int{1,2,3,4}
+    words := []string{"yam", "yi", "yo", "bitch"}
+
+    wg.Add(2)
+
+    go func() {
+        defer wg.Done()
+        for _, num := range nums {
+            chan1 <- num
+        }
+		close(chan1)
+    }()
+
+    go func() {
+        defer wg.Done()
+        for _, word := range words {
+            chan2 <- word
+        }
+		close(chan2)
+    }()
+
+    
+
+    for chan1 != nil || chan2 != nil {
+        select {
+        case num, ok := <-chan1:
+            if !ok {
+                chan1 = nil
+            } else {
+                fmt.Println(num)
+            }
+        case word, ok := <-chan2:
+            if !ok {
+                chan2 = nil
+            } else {
+                fmt.Println(word)
+            }
+        }
+    }
+	wg.Wait()
+}
+
