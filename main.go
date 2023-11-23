@@ -7,42 +7,45 @@ import (
 )
 
 func main() {
-    selectChanExample()
+    writeAndAppend()
     
 }
 
 func writeAndAppend() {
 	var wg sync.WaitGroup
-    c := make(chan int)
-    myInts := []int{1,2,3,4}
-    res := []int{}
-    wg.Add(2)
-    go func(){
-        SendNumToChan(myInts, c)
-        wg.Done()
-    }()
-    go func(){
-        res = readFromChannel(res, c)
-        wg.Done()
-    }()
-    wg.Wait() // Wait for all goroutines to finish
-    fmt.Println(res)
+	wg.Add(2)
+	example := []int{1,2,3,4,5,6}
+	numChan := make(chan int)
+	var res []int
+	go func() {
+		defer wg.Done()
+		SendNumToChan(example, numChan)
+	}()
+	go func() {
+		defer wg.Done()
+		readFromChannel(&res, numChan)
+	}()
+	wg.Wait()
+	fmt.Println(res)
+
 }
 
 func SendNumToChan(nums []int, c chan int) {
     for _, num := range nums {
-        c <- num
+        if num % 2 == 0 {
+			c <- num
+		}
     }
 	// this is fine because we can close a channel even if all data hasn't been read from it. read from Channel will still read value from a closed channel
 	close(c)
 }
 
-func readFromChannel(nums []int, c chan int) []int {
+func readFromChannel(nums *[]int, c chan int) {
 
     for num := range c {
-        nums = append(nums, num)
+        *nums = append(*nums, num)
     }
-	return nums
+	
 }
 
 func countConcurrently() {
