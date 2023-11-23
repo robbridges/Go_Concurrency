@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-    writeAndAppend()
+    whatWins()
     
 }
 
@@ -64,6 +64,7 @@ func countConcurrently() {
 		wg.Wait()
 		close(c)
 	}()
+	
 	for value := range c {
 		fmt.Println(value)
 	}
@@ -77,29 +78,38 @@ func count (thing string, c chan string) {
 	
 }
 
-func selectChanExample() {
-	c1 := make(chan string)
-	c2 := make(chan string)
-	go func() {
-		for {
-			c1 <- "Every 500ms"
-			time.Sleep(time.Millisecond * 500)
-		}
-	}()
-	go func() {
-		for {
-			c2 <- "Every 2 seconds"
-			time.Sleep(time.Second * 2)
-		}
-	}()
-
-	for {
-		select {
-		case msg1 := <- c1:
-			fmt.Println(msg1)
-		case msg2 := <- c2:
-			fmt.Println(msg2)
-		}
-		
-	}
+func whatWins() {
+    var wg sync.WaitGroup
+    numChan := make(chan int, 30) // Increase the buffer size to prevent blocking
+    nums := []int{}
+    wg.Add(3)
+    go func() {
+        for i := 0; i < 10; i++ {
+            numChan <- 1
+            time.Sleep(time.Millisecond) // Add a small delay
+        }
+        wg.Done()
+    }()
+    go func() {
+        for i := 0; i < 10; i++ {
+            numChan <- 2
+            time.Sleep(time.Millisecond) // Add a small delay
+        }
+        wg.Done()
+    }()
+    go func() {
+        for i := 0; i < 10; i++ {
+            numChan <- 3
+            time.Sleep(time.Millisecond) // Add a small delay
+        }
+        wg.Done()
+    }()
+    go func() {
+        wg.Wait() // Wait for the other goroutines to finish
+        close(numChan) // Then close the channel
+    }()
+    for num := range numChan { // Read from the channel until it's closed
+        nums = append(nums, num)
+    }
+    fmt.Println(nums)
 }
