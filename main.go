@@ -29,7 +29,7 @@ func main() {
     //         fmt.Println("received", msg2)
     //     }
     // }
-    writeAndAppend()
+   channelSelect()
 }
 
 func writeAndAppend() {
@@ -137,6 +137,7 @@ func appendToSlices(slice1, slice2 []int) []int {
 func channelSelect() {
     numChan := make(chan int)
     stringChan := make(chan string)
+    quit := make(chan bool)
     nums := []int{1,2,3,4}
     words := []string{"yam", "yam", "yo"}
 
@@ -144,24 +145,26 @@ func channelSelect() {
         for _, num := range nums {
             numChan <- num
         }
-        close(numChan)
+        quit <- true
     }()
 
     go func() {
         for _, word := range words {
             stringChan <- word
         }
-        close(stringChan)
+        quit <- true
     }()
 
-  
-    for chanNum := range numChan {
+    completed := 0
+    for completed < 2 {
+        select {
+        case chanNum := <- numChan:
             fmt.Println(chanNum)
-    }
-    
-
-    for chanString := range stringChan {
-        fmt.Println(chanString)
+        case chanString := <- stringChan:
+            fmt.Println(chanString)
+        case <- quit:
+            completed++
+        }
     }
 }
 
