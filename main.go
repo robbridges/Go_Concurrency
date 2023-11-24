@@ -29,7 +29,7 @@ func main() {
     //         fmt.Println("received", msg2)
     //     }
     // }
-   channelSelect()
+   WhoWins()
 }
 
 func writeAndAppend() {
@@ -168,4 +168,42 @@ func channelSelect() {
     }
 }
 
+func WhoWins() {
+    numChan := make(chan int)
+    stringChan := make(chan string)
+    stringComplete := make(chan bool)
+    numComplete := make(chan bool)
+    nums := []int{1,2,3,4}
+    words := []string{"yam", "yam", "yo"}
+
+    go func() {
+        for _, num := range nums {
+            numChan <- num
+        }
+        numComplete <- true
+    }()
+
+    go func() {
+        for _, word := range words {
+            stringChan <- word
+        }
+        stringComplete <- true
+    }()
+
+    done := false
+    for !done  {
+        select {
+        case chanNum := <- numChan:
+            fmt.Println(chanNum)
+        case chanString := <- stringChan:
+            fmt.Println(chanString)
+        case <- numComplete:
+            fmt.Println("Numbers win")
+            done = true
+        case <- stringComplete:
+            fmt.Println("Strings win")
+            done = true
+    }
+}
+}
 
