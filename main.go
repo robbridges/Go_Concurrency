@@ -35,42 +35,7 @@ func main() {
     fmt.Println(got)
 }
 
-func writeAndAppend([]int) {
-	var wg sync.WaitGroup
-    wg.Add(2)
-    nums := []int{1,2,3,4,5,6}
-    numChan := make(chan int)
-    var res []int
-    go func(){
-        defer wg.Done()
-        SendNumToChan(nums, numChan)
-    }()
-    go func(){
-        defer wg.Done()
-        readFromChannel(&res, numChan)
-    }()
-    wg.Wait()
-	fmt.Println(res)
 
-}
-
-func SendNumToChan(nums []int, c chan int) {
-    for _, num := range nums {
-        if num % 2 == 0 {
-			c <- num
-		}
-    }
-	// this is fine because we can close a channel even if all data hasn't been read from it. read from Channel will still read value from a closed channel
-	close(c)
-}
-
-func readFromChannel(nums *[]int, c chan int) {
-
-    for num := range c {
-        *nums = append(*nums, num)
-    }
-	
-}
 
 func countConcurrently() {
 	var wg sync.WaitGroup
