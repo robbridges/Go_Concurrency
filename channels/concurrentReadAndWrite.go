@@ -34,6 +34,7 @@ func sendNumToChan(nums []int, c chan int) {
 func readFromChannel(nums *[]int, c chan int) {
 
     for num := range c {
+		// best to make this a pointer, while we could just return the array that we create, it's good pointer practice
         *nums = append(*nums, num)
     }
 	
