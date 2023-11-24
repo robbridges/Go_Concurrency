@@ -1,6 +1,7 @@
 package main
 
 import (
+	"concurrency/channels"
 	"fmt"
 	"sync"
 	"time"
@@ -29,10 +30,12 @@ func main() {
     //         fmt.Println("received", msg2)
     //     }
     // }
-   WhoWins()
+    ints := []int{1,2,3,4,5,6}
+    got := channels.WriteAndAppend(ints)
+    fmt.Println(got)
 }
 
-func writeAndAppend() {
+func writeAndAppend([]int) {
 	var wg sync.WaitGroup
     wg.Add(2)
     nums := []int{1,2,3,4,5,6}
