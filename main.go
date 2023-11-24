@@ -9,45 +9,45 @@ import (
 
 func main() {
 
-    c1 := make(chan string)
-    c2 := make(chan string)
+    // c1 := make(chan string)
+    // c2 := make(chan string)
 
-    go func() {
-        time.Sleep(1 * time.Second)
-        c1 <- "one"
-    }()
-    go func() {
-        time.Sleep(2 * time.Second)
-        c2 <- "two"
-    }()
+    // go func() {
+    //     time.Sleep(1 * time.Second)
+    //     c1 <- "one"
+    // }()
+    // go func() {
+    //     time.Sleep(2 * time.Second)
+    //     c2 <- "two"
+    // }()
 
-    for i := 0; i < 2; i++ {
-        select {
-        case msg1 := <-c1:
-            fmt.Println("received", msg1)
-        case msg2 := <-c2:
-            fmt.Println("received", msg2)
-        }
-    }
+    // for i := 0; i < 2; i++ {
+    //     select {
+    //     case msg1 := <-c1:
+    //         fmt.Println("received", msg1)
+    //     case msg2 := <-c2:
+    //         fmt.Println("received", msg2)
+    //     }
+    // }
+    writeAndAppend()
 }
 
 func writeAndAppend() {
 	var wg sync.WaitGroup
-	wg.Add(2)
-	example := []int{1,2,3,4,5,6}
-	numChan := make(chan int)
-	var res []int
-	go func() {
-		defer wg.Done()
-		SendNumToChan(example, numChan)
-	}()
-	go func() {
-		defer wg.Done()
-		readFromChannel(&res, numChan)
-	}()
-	wg.Wait()
+    wg.Add(2)
+    nums := []int{1,2,3,4,5,6}
+    numChan := make(chan int)
+    var res []int
+    go func(){
+        defer wg.Done()
+        SendNumToChan(nums, numChan)
+    }()
+    go func(){
+        defer wg.Done()
+        readFromChannel(&res, numChan)
+    }()
+    wg.Wait()
 	fmt.Println(res)
-	
 
 }
 
