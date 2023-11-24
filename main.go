@@ -6,9 +6,29 @@ import (
 	"time"
 )
 
+
 func main() {
-    channelSelect()
-    
+
+    c1 := make(chan string)
+    c2 := make(chan string)
+
+    go func() {
+        time.Sleep(1 * time.Second)
+        c1 <- "one"
+    }()
+    go func() {
+        time.Sleep(2 * time.Second)
+        c2 <- "two"
+    }()
+
+    for i := 0; i < 2; i++ {
+        select {
+        case msg1 := <-c1:
+            fmt.Println("received", msg1)
+        case msg2 := <-c2:
+            fmt.Println("received", msg2)
+        }
+    }
 }
 
 func writeAndAppend() {
@@ -115,48 +135,34 @@ func appendToSlices(slice1, slice2 []int) []int {
 }
 
 func channelSelect() {
-    var wg sync.WaitGroup
-    chan1 := make(chan int)
-    chan2 := make(chan string)
+    numChan := make(chan int)
+    stringChan := make(chan string)
     nums := []int{1,2,3,4}
-    words := []string{"yam", "yi", "yo", "bitch"}
-
-    wg.Add(2)
+    words := []string{"yam", "yam", "yo"}
 
     go func() {
-        defer wg.Done()
         for _, num := range nums {
-            chan1 <- num
+            numChan <- num
         }
-		close(chan1)
+        close(numChan)
     }()
 
     go func() {
-        defer wg.Done()
         for _, word := range words {
-            chan2 <- word
+            stringChan <- word
         }
-		close(chan2)
+        close(stringChan)
     }()
 
+  
+    for chanNum := range numChan {
+            fmt.Println(chanNum)
+    }
     
 
-    for chan1 != nil || chan2 != nil {
-        select {
-        case num, ok := <-chan1:
-            if !ok {
-                chan1 = nil
-            } else {
-                fmt.Println(num)
-            }
-        case word, ok := <-chan2:
-            if !ok {
-                chan2 = nil
-            } else {
-                fmt.Println(word)
-            }
-        }
+    for chanString := range stringChan {
+        fmt.Println(chanString)
     }
-	wg.Wait()
 }
+
 
