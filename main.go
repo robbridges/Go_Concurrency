@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "concurrency/channels"
 	"concurrency/channels"
 	"fmt"
 	"sync"
@@ -30,13 +31,14 @@ func main() {
     //         fmt.Println("received", msg2)
     //     }
     // }
-    result := channels.CountConcurrently(500)
-    fmt.Println(result)
+    res := channels.WhoWins()
+    fmt.Println(res)
 }
 
 func whatWins() {
+    // multiple go routines writing to the same channel needs to be closed in a third go routine
     var wg sync.WaitGroup
-    numChan := make(chan int, 20) // Increase the buffer size to prevent blocking
+    numChan := make(chan int) // Increase the buffer size to prevent blocking
     nums := []int{}
     wg.Add(2)
     go func() {
@@ -99,42 +101,5 @@ func channelSelect() {
     }
 }
 
-func WhoWins() {
-    numChan := make(chan int)
-    stringChan := make(chan string)
-    stringComplete := make(chan bool)
-    numComplete := make(chan bool)
-    nums := []int{1,2,3,4}
-    words := []string{"yam", "yam", "yo"}
 
-    go func() {
-        for _, num := range nums {
-            numChan <- num
-        }
-        numComplete <- true
-    }()
-
-    go func() {
-        for _, word := range words {
-            stringChan <- word
-        }
-        stringComplete <- true
-    }()
-
-    done := false
-    for !done  {
-        select {
-        case chanNum := <- numChan:
-            fmt.Println(chanNum)
-        case chanString := <- stringChan:
-            fmt.Println(chanString)
-        case <- numComplete:
-            fmt.Println("Numbers win")
-            done = true
-        case <- stringComplete:
-            fmt.Println("Strings win")
-            done = true
-    }
-}
-}
 
