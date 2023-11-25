@@ -30,41 +30,8 @@ func main() {
     //         fmt.Println("received", msg2)
     //     }
     // }
-    ints := []int{1,2,3,4,5,6}
-    got := channels.WriteAndAppend(ints)
-    fmt.Println(got)
-}
-
-
-
-func countConcurrently() {
-	var wg sync.WaitGroup
-	c := make(chan string)
-	wg.Add(2)
-	go func() {
-		count("sheep", c)
-		wg.Done()
-	}()
-	go func() {
-		count("fish", c)
-		wg.Done()
-	}()
-	go func() {
-		wg.Wait()
-		close(c)
-	}()
-	
-	for value := range c {
-		fmt.Println(value)
-	}
-}
-
-func count (thing string, c chan string) {
-	for i := 1; i <= 5; i++ {
-		c <- thing
-		time.Sleep(time.Millisecond * 500)
-	}
-	
+    result := channels.CountConcurrently(500)
+    fmt.Println(result)
 }
 
 func whatWins() {
@@ -96,11 +63,7 @@ func whatWins() {
     fmt.Println(nums)
 }
 
-func appendToSlices(slice1, slice2 []int) []int {
-	var newSlice []int
-	newSlice = append(slice1, slice2...)
-	return newSlice
-}
+
 
 func channelSelect() {
     numChan := make(chan int)
